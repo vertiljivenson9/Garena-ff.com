@@ -36,3 +36,19 @@ Data saved with key:  -Oo5_VXgnD0sVh_U5WnZ
  GET / 200 in 1298ms (compile: 1130ms, render: 168ms)
  GET / 200 in 59ms (compile: 5ms, render: 54ms)
  GET / 200 in 38ms (compile: 3ms, render: 35ms)
+ GET / 200 in 30ms (compile: 2ms, render: 28ms)
+ GET / 200 in 36ms (compile: 2ms, render: 33ms)
+✓ Compiled in 788ms
+ GET / 200 in 799ms (compile: 756ms, render: 43ms)
+Error: Turbopack build failed with 1 errors:
+./src/app
+Error: Next.js inferred your workspace root, but it may not be correct.
+    We couldn't find the Next.js package (next/package.json) from the project directory: /home/z/my-project/src/app
+     To fix this, set turbopack.root in your Next.js config, or ensure the Next.js package is resolvable from this directory.
+    Note: For security and performance reasons, files outside of the project directory will not be compiled.
+    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+
+    at ignore-listed frames
+(node:808) [DEP0128] DeprecationWarning: Invalid 'main' field in '/home/z/my-project/node_modules/next/dist/compiled/zod/package.json' of 'index.cjs'. Please either fix that or report it to the module author
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[?25h
