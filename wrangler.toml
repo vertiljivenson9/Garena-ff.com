@@ -1,0 +1,7 @@
+name = "garena-ff-redemption"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+# Las variables de entorno sensibles se configuran en el dashboard de Cloudflare
