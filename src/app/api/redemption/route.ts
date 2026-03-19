@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ref, push, serverTimestamp } from 'firebase/database'
-import { database } from '@/lib/firebase'
+import { getDatabaseInstance } from '@/lib/firebase'
 
 // Required for Cloudflare Pages
 export const runtime = 'edge'
@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Get database instance
+    const database = getDatabaseInstance()
 
     // Save to Firebase Realtime Database
     const redemptionsRef = ref(database, 'redemptions')
